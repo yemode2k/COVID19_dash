@@ -45,6 +45,7 @@ fontWeight_table = 'Normal'
 color_fort_plot = '#e6e3e3'
 color_fort_map = '#e6e3e3'
 
+# compute the growth factor and the derivative
 def add_growth(data, field):
     if np.sum(data.columns.str.contains(field)):
       #data = data.drop([data.columns.str.contains(field+'-GR')],axis = 1)
@@ -55,15 +56,19 @@ def add_growth(data, field):
       Data2 = Data0.shift(-2, axis = 0) 
 
       epsilon =.01
-      Growthr = (Data1-Data0)/(Data1 + epsilon)
-      Growthr.columns = Growthr.columns.str.replace(field,field+'-GR')
-      Growthr = Growthr.T.shift(1, axis = 1).T
-      Growthr = Growthr.clip(0, 1)*100
-      Growthr.iloc[0:N] = np.nan
-
-      data[field+'-GR'] = Growthr[field+'-GR']
+      for cn in ['-GR','-PK']:
+        Growthr = (Data1-Data0)
+        if cn == '-GR':
+          Growthr = Growthr/(Data1 + epsilon)
+        Growthr.columns = Growthr.columns.str.replace(field,field+cn)
+        Growthr = Growthr.T.shift(1, axis = 1).T
+        if cn == '-GR':        
+          Growthr = Growthr.clip(0, 1)*100
+        Growthr.iloc[0:N] = np.nan
+        data[field+cn] = Growthr[field+cn]
     return data
 
+# It generates blocks per country, regions etc.
 def data_funct(df, location, country):
   if (country == 'Full Country') & (location == 'Full Country'):
     A = df[df['location'] == 'Full Country'].groupby(['time']).sum()
@@ -81,7 +86,7 @@ def data_funct(df, location, country):
     df_temp = add_growth(df_temp, k)
   return df_temp, country, location
 
-
+# It makes the frames of tables.
 def make_dcc_pd(country, dataframe):
     if country == "The World":
       rows_list = ['country','cases','deaths','recovered','hospitalized','ICU']
@@ -91,6 +96,7 @@ def make_dcc_pd(country, dataframe):
       dataframe = dataframe[dataframe.country == country]
     return [dataframe.sort_values(['deaths'], axis = 0, ascending=False), rows_list]
 
+# It generates tables and add data
 def make_dcc_country_tab(country, dataframe):
 
     dataframe, rows_list = make_dcc_pd(country, dataframe)
@@ -128,9 +134,11 @@ def make_dcc_country_tab(country, dataframe):
 # Functions for the plots
 ################################################################################
 
+# Color definition
 def colhex(color):
   return matplotlib.colors.to_hex(color)
 
+# It create the plots using the loaded data
 def create_add_trace(fig, df_temp, list_cn, name_list, hovertext_list, N = 10, iadd = 0, backgroundColorplots = backgroundColorplots):
   colors = plt.cm.rainbow(np.linspace(0, 1, N))
   for i, cn in enumerate(list_cn):  
@@ -148,6 +156,7 @@ def create_add_trace(fig, df_temp, list_cn, name_list, hovertext_list, N = 10, i
                                       #              '<extra></extra>'
   return fig
 
+# Plot style for figures 1
 def figure_top_style(fig, tickList = None, xscale = "liner", yscale = "liner"):
   yaxis = dict(showline=False, linecolor='#272e3e',
         zeroline=False,
@@ -194,7 +203,7 @@ def figure_top_style(fig, tickList = None, xscale = "liner", yscale = "liner"):
   fig.update_yaxes(showline=True, linewidth=0.5, linecolor='#e6e3e3', mirror=True)
 
   return fig
-
+# Plot style for figures 2
 def figure_top_style_2(fig, country, location, backgroundColorplots = backgroundColorplots, yaxis_title="Cumulative cases numbers"):
   # Customise layout
   fig.update_layout(
@@ -245,6 +254,7 @@ def figure_top_style_2(fig, country, location, backgroundColorplots = background
   )
   return fig
 
+# It creates the mas
 def create_map(df_temp,  longitude= 6.395626, latitude= 14.056159, zoom = 1, backgroundColorplots = backgroundColorplots, mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"):
   data = [
   go.Scattermapbox(
@@ -329,6 +339,7 @@ def create_map(df_temp,  longitude= 6.395626, latitude= 14.056159, zoom = 1, bac
 
   return fig_map
 
+# Select the the colors of the map
 def map_selectcolor(df, i, location):
   Mapcolor_dic = {'Full Country':'#F4F6F7','Partial':'#909497','Infected':'#F1948A','Severe':'#d7191c','Alert':'#F4D03F','Cured':'#1a9622'}
   
@@ -352,6 +363,7 @@ def map_selectcolor(df, i, location):
 
   return color   
 
+# Create traces for phenom fit
 def create_add_phenom_trace(fig, df_phenom, dic_phenom):
   iadd = 0
   colors = plt.cm.rainbow(np.linspace(0, 1, len(df_phenom['Country'].unique())))
@@ -379,13 +391,24 @@ def create_add_phenom_trace(fig, df_phenom, dic_phenom):
                                marker=dict(size=4, color='#f4f4f2', line=dict(width=2, color=colhex(colors[k+iadd])))))
   return fig
 
+# Update line plots
+def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexscale, typeyscale, yaxis_title):
+    df_temp, country, location, zoom, longitude, latitude = get_data_update(vals)
 
+    # Create empty figure canvas
+    fig = go.Figure()
+    # Add trace to the figure
+    df_temp.sort_values('deaths')
+    fig = create_add_trace(fig, df_temp, list_cn = list_cn, name_list = name_list, hovertext_list = hovertext_list, N = N, iadd = iadd)
+    fig = figure_top_style(fig, xscale = typexscale, yscale = typeyscale)
+    fig = figure_top_style_2(fig, country = country, location = location, yaxis_title=yaxis_title)
+
+    return fig
 
 ################################################################################
 # Data processing
 ################################################################################
-
-
+# Load data and minor postprocessing.
 
 df = pd.read_json(path+'cases_world.json')
 loc_dic_df = pd.read_json(path+'locations.json')
@@ -394,10 +417,11 @@ df_phenom = pd.read_json(path+'phenom.json')
 world, _, _ = data_funct(df, 'Full Country', 'Full Country')
 
 
-
 # Save numbers into variables to use in the app
-latestDate = datetime.strptime(str('12/12/2019'), '%m/%d/%Y')
-daysOutbreak = (datetime.now()-latestDate).days
+latestDate = df['time'].tail(1).values[0]
+firstData = datetime.strptime(str('12/12/2019'), '%m/%d/%Y')
+daysOutbreak = (datetime.now()-firstData).days
+
 
 Totalcases = world.cases.tail(1).values
 CasesToday = np.round((world.cases.tail(1).values - world.cases.tail(2).values[0]))
@@ -411,52 +435,52 @@ TotalDeaths = world.deaths.tail(1).values
 DeathsToday = np.round((world.deaths.tail(1).values - world.deaths.tail(2).values[0]))
 DeathsInPercent = np.round(DeathsToday/TotalDeaths*100)
 
-
-
-list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full Country'].country.unique())
-datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
-df_temp_table = df[df['time'] == df['time'].tail(1).values[0]].reset_index().drop(['index'],axis=1)
-dcc_tables = [make_dcc_country_tab(i,df_temp_table) for i in list_of_extended_countries]
-
-
-df_temp = df[df['time'] == df['time'].tail(1).values[0]].reset_index().drop(['index'],axis=1)
-fig_map = create_map(df_temp)
-
-
-country = 'Loading..'
-location = ''
-# Create empty figure canvas
-fig_dash = go.Figure()
-# Add trace to the figure
-figure_top_style(fig_dash, xscale = "date", yscale = "linear")
-figure_top_style_2(fig_dash, country, location)
-
-dic_tabs = {}
-dic_tabs['Cumulative Cases Linear'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'linear']
-dic_tabs['Cumulative Cases Log'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'log']
-dic_tabs['Rate evolution'] = ['figure-dash',fig_dash, ['deaths-GR','cases-GR'],"24h Percentage increase rate [%]",'linear']
-dic_tabs['More than 500 deaths logscale'] = ['figure-dash',fig_dash]
-
+# Define dictionary for initial baners.
 dic_first = {}
 dic_first["Days Since Outbreak"] = ['-----    -----', str(daysOutbreak), days_size_color]
 dic_first["Confirmed Cases"] = [str(CasesToday[0]) +' increase of '+ str(CasesInPercent[0]) + '%', str(Totalcases[0]), cases_color]
 dic_first["Recovered Cases"] = [str(RecoveredToday[0]) +' increase of '+ str(RecoveredInPercent[0]), str(TotalRecovered[0]) , recovered_color]
 dic_first["Death Cases"] = [str(DeathsToday[0]) +' increase of '+ str(DeathsInPercent[0]), str(TotalDeaths[0]), deaths_color]
 
+# List of regions
+list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full Country'].country.unique())
 
+# Dictionary for the list of tables
+datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
+
+# Data for the tables and the map related to the cumulative data of the last day
+df_temp = df[df['time'] == latestDate].reset_index().drop(['index'],axis=1)
+dcc_tables = [make_dcc_country_tab(i,df_temp) for i in list_of_extended_countries]
+fig_map = create_map(df_temp)
+
+# Create empty canvas  section for the data
+country = 'Loading..'
+location = ''
+fig_dash = go.Figure()
+figure_top_style(fig_dash, xscale = "date", yscale = "linear")
+figure_top_style_2(fig_dash, country, location)
+
+# Dictionary to create tabs. and update figures for the data.
+dic_tabs = {}
+dic_tabs['Cumulative Cases Linear'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'linear']
+dic_tabs['Cumulative Cases Log'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'log']
+dic_tabs['Rate evolution'] = ['figure-dash',fig_dash, ['deaths-GR','cases-GR'],"24h Percentage increase rate [%]",'linear']
+dic_tabs['Derivative / peak'] = ['figure-dash',fig_dash, ['deaths-PK','cases-PK'],"24h derivative change",'linear']
+dic_tabs['More than 500 deaths logscale'] = ['figure-dash',fig_dash]
+
+# Create empty canvas for the phenomenological figures.
 fig_model = go.Figure()
+figure_top_style(fig_model, xscale = "date", yscale = "linear")
+figure_top_style_2(fig_model, country, location)
 
+# Dictionary to create tabs. and update phenomenological figures 
 dic_phenom_tabs = {}
 dic_phenom_tabs['Phenom logistic model linear'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'log-model','linear']
 dic_phenom_tabs['Phenom logistic model log'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'log-model','log']
 dic_phenom_tabs['Phenom Gomper model linear'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'gompertz-model','linear']
 dic_phenom_tabs['Phenom Gomper model log'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'gompertz-model','log']
 
-
-figure_top_style(fig_model, xscale = "date", yscale = "linear")
-figure_top_style_2(fig_model, country, location)
-
-text_phenom = ["Phenomenological models:","text saying select the ...."]
+text_phenom = ["Phenomenological models:","Click here to visualise the model fits."]
 
 
 ##################################################################################################
@@ -479,6 +503,7 @@ app = dash.Dash(__name__,
 app.title = 'Coronavirus COVID-19 Global Monitor'
 
 # Section for Google annlytic and donation #
+#  Todo: incorporate web content from external link for not dashboard content. 
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
@@ -681,6 +706,7 @@ server = app.server
 
 app.config['suppress_callback_exceptions'] = True
 
+# Layout for the app.
 app.layout = html.Div(style={'backgroundColor': backgroundColor1},
     children=[
         html.Div(
@@ -825,10 +851,10 @@ list_tables = [i.partition('datatable-interact-location-')[2] for i in datatable
 B = [[Input(cn,'derived_virtual_selected_rows'),Input(cn,'selected_row_ids')] for i, cn in enumerate(datatable_interact)]
 flatten_inputs = sum(B, [])
 
+
 @app.callback(
     Output('datatable-interact-map', 'figure'), [Input('tabs-table', 'value')]+flatten_inputs
 )
-
 def update_figures(*vals):
     df_temp, country, location, zoom, longitude, latitude = get_data_update(vals)
     df_temp = df[df['time'] == df['time'].tail(1).values[0]].reset_index().drop(['index'],axis=1)
@@ -838,19 +864,6 @@ def update_figures(*vals):
     fig_map = create_map(df_temp, longitude, latitude, zoom)
 
     return fig_map
-
-def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexscale, typeyscale, yaxis_title):
-    df_temp, country, location, zoom, longitude, latitude = get_data_update(vals)
-
-    # Create empty figure canvas
-    fig = go.Figure()
-    # Add trace to the figure
-    df_temp.sort_values('deaths')
-    fig = create_add_trace(fig, df_temp, list_cn = list_cn, name_list = name_list, hovertext_list = hovertext_list, N = N, iadd = iadd)
-    fig = figure_top_style(fig, xscale = typexscale, yscale = typeyscale)
-    fig = figure_top_style_2(fig, country = country, location = location, yaxis_title=yaxis_title)
-
-    return fig
 
 @app.callback(Output('tabs-content-plots', 'children'),
               [Input('tabs-plots', 'value')])
