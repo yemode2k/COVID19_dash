@@ -818,7 +818,7 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
 
 def get_data_update(vals):
 
-    df_temp_table = df[df['time'] == df['time'].tail(1).values[0]].reset_index().drop(['index'],axis=1)
+    df_temp_table = df.sort_values('time').groupby(['country','location']).tail(1)
     df_temp_table, _ = make_dcc_pd(vals[0], df_temp_table.copy())
 
     location = vals[0]
@@ -858,7 +858,7 @@ flatten_inputs = sum(B, [])
 )
 def update_figures(*vals):
     df_temp, country, location, zoom, longitude, latitude = get_data_update(vals)
-    df_temp = df[df['time'] == df['time'].tail(1).values[0]].reset_index().drop(['index'],axis=1)
+    df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
     textList = [df.country, df.location]
 
 
