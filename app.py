@@ -89,10 +89,10 @@ def data_funct(df, location, country):
 # It makes the frames of tables.
 def make_dcc_pd(country, dataframe):
     if country == "The World":
-      rows_list = ['country','cases','deaths','recovered','hospitalized','ICU']
+      rows_list = ['country','cases','deaths','recovered','hospitalized','ICU','time']
       dataframe = dataframe[dataframe.location == "Full Country"] 
     else:
-      rows_list = ['location','cases','deaths','recovered','hospitalized','ICU']
+      rows_list = ['location','cases','deaths','recovered','hospitalized','ICU','time']
       dataframe = dataframe[dataframe.country == country]
     return [dataframe.sort_values(['deaths'], axis = 0, ascending=False), rows_list]
 
@@ -418,6 +418,7 @@ world, _, _ = data_funct(df, 'Full Country', 'Full Country')
 
 
 # Save numbers into variables to use in the app
+df['time'] = df['time'].str.slice(0,10)
 latestDate = df['time'].tail(1).values[0]
 firstData = datetime.strptime(str('12/12/2019'), '%m/%d/%Y')
 daysOutbreak = (datetime.now()-firstData).days
@@ -449,7 +450,7 @@ list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full 
 datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
 
 # Data for the tables and the map related to the cumulative data of the last day
-df_temp = df[df['time'] == latestDate].reset_index().drop(['index'],axis=1)
+df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
 dcc_tables = [make_dcc_country_tab(i,df_temp) for i in list_of_extended_countries]
 fig_map = create_map(df_temp)
 
