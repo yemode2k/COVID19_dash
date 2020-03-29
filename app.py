@@ -18,6 +18,8 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 
+path='./assets/data/'
+
 ###################################
 # Private function
 ###################################
@@ -384,9 +386,8 @@ def create_add_phenom_trace(fig, df_phenom, dic_phenom):
 ################################################################################
 
 
-path='./covid19_scenarios_data/case-counts/'
+
 df = pd.read_json(path+'cases_world.json')
-phenom_df = pd.read_json(path+'phenom.json')
 loc_dic_df = pd.read_json(path+'locations.json')
 df_phenom = pd.read_json(path+'phenom.json')
 
