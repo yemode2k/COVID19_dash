@@ -150,10 +150,7 @@ def create_add_trace(fig, df_temp, list_cn, name_list, hovertext_list, N = 10, i
                                       marker=dict(size=4, color='#f4f4f2',
                                                   line=dict(width=1, color=colhex(colors[i+iadd]))),
                                       text=[str(d) for d in df_temp['time']],))
-                                      #hovertext=[ hovertext_list[i] + '<br>' + str(d) + 'cases<br>' for d in df_temp[cn]],
-                                      #hovertemplate='<b>%{text}</b><br></br>' +
-                                      #              '%{hovertext}' +
-                                      #              '<extra></extra>'
+
   return fig
 
 # Plot style for figures 1
@@ -470,7 +467,7 @@ dic_tabs = {}
 dic_tabs['Cumulative Cases Linear'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'linear']
 dic_tabs['Cumulative Cases Log'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'log']
 dic_tabs['Rate evolution'] = ['figure-dash',fig_dash, ['deaths-GR','cases-GR'],"24h Percentage increase rate [%]",'linear']
-dic_tabs['Derivative / peak'] = ['figure-dash',fig_dash, ['deaths-PK','cases-PK'],"24h derivative change",'linear']
+dic_tabs['Daily increment / peak'] = ['figure-dash',fig_dash, ['deaths-PK','cases-PK'],"24h increment",'linear']
 dic_tabs['More than 500 deaths logscale'] = ['figure-dash',fig_dash]
 
 # Create empty canvas for the phenomenological figures.
@@ -486,6 +483,11 @@ dic_phenom_tabs['Phenom Gomper model linear'] = ['figure-phenom',fig_model,['vme
 dic_phenom_tabs['Phenom Gomper model log'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'gompertz-model','log']
 
 text_phenom = ["Phenomenological models:","Click here to visualise the model fits."]
+
+disclame_text = ["This data and the mathematical models provide an image of the COVID-19 situation.\
+    But be awared that the simulations and data shown here should never be used as medical predictors,\
+    and they are for informative and research purposes only;\
+    please use the simulated results responsibly."]
 
 
 ##################################################################################################
@@ -696,7 +698,7 @@ app.index_string = """<!DOCTYPE html>
           and logistic curves.</p>
           <p>by 3Blue1Brown</p>
           <p>&nbsp</p>
-          <a href="https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw" class="button">Go to their channel</a>
+          <a href="https://www.youtube.com/channel/UCYO_jab_esuFRV4b17AJtAw"><button>Go to their channel</button></a>
         </div>
       </div>
 
@@ -710,7 +712,7 @@ app.index_string = """<!DOCTYPE html>
             <p>Bayes' theorem explained with examples and implications for life.</p>
             <p>by Veritasium</p>
             <p>&nbsp</p>
-            <a href="https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA" class="button">Go to their channel</a>
+            <a href="https://www.youtube.com/channel/UCHnyfMqiRRG1u-2MsSQLbXA"><button>Go to their channel</button></a>
           </div>
       </div>
 
@@ -767,7 +769,7 @@ app.index_string = """<!DOCTYPE html>
                 </div>  
                 <h1>Miquel Oliver</h1>
                 <p class="title"></p>
-                <p style="color: black" style="color: black">Data Scientist, PhD in Physics</p>
+                <p style="color: black !important;" style="color: black">Data Scientist, PhD in Physics</p>
                 <a href="https://www.linkedin.com/in/miquel-oliver-almi%C3%B1ana-0123a9a2/"><i class="fa fa-linkedin"></i></a>
               </div>  
             </div>
@@ -779,8 +781,8 @@ app.index_string = """<!DOCTYPE html>
                   <img src="./assets/xisco.png" alt="xisco" style="width:100%">
                 </div> 
                 <h1>Xisco Jimenez</h1>
-                <p style="color: black" class="title"></p>
-                <p style="color: black">PhD Physics</p>
+                <p style="color: black !important;" class="title"></p>
+                <p style="color: black !important;">PhD Physics</p>
                 <a href="https://www.linkedin.com/in/xisco-jimenez-forteza/"><i class="fa fa-linkedin"></i></a>
               </div>
             </div>
@@ -839,6 +841,11 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
         ######## ######## ########
         ### Principal Dashboar ###
         ######## ######## ########
+        html.Div(style={'width': '100%', 'display': 'inline-block',
+                          'marginRight': '.8%', 'verticalAlign': 'top',
+                  'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)', 'backgroundColor': background_color_banners},
+                                  children=[html.P( style={'color': days_size_color, 'textAlign': 'center', 'font_size': '1em', 'padding': '.5rem'}, children=disclame_text)]),
+
         html.Div(id="number-plate",
                   style={'marginTop': '1.5%', 'marginLeft': '1.5%', 'marginRight': '1.5%', 'marginBottom': '.0%'},
                   children=[html.Div(style={'width': '24%', 'display': 'inline-block',
