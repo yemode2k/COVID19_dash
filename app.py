@@ -49,7 +49,7 @@ color_fort_map = '#e6e3e3'
 def add_growth(data, field):
     if np.sum(data.columns.str.contains(field)):
       #data = data.drop([data.columns.str.contains(field+'-GR')],axis = 1)
-      N = sum(data[field] <= 10)
+      N = sum(data[field] <= 20)
 
       Data0 = data.T[data.columns.str.contains(field)].T
       Data1 = Data0.shift(-1, axis = 0)
@@ -65,6 +65,7 @@ def add_growth(data, field):
         if cn == '-GR':        
           Growthr = Growthr.clip(0, 1)*100
         Growthr.iloc[0:N] = np.nan
+        Growthr.iloc[-1] = np.nan
         data[field+cn] = Growthr[field+cn]
     return data
 
@@ -77,6 +78,11 @@ def data_funct(df, location, country):
     df_temp = A.reset_index()
     country = 'The entire'
     location = 'World'
+    for cn in ['deaths','cases','recovered']: #,'hospitalized','ICU']:
+        A = df_temp[cn].values
+        A[-10:] = np.maximum.accumulate(A[-10:])
+        A = np.minimum.accumulate(A[::-1])[::-1]
+        df_temp[cn] = A
   else:
     if (sum(country == np.append(df[df['location'] != 'Full Country'].country.unique(),'World')))&(location == 'Full Country'):
       df_temp = df[(df.country == country)&(df.location != 'Full Country')].groupby(['time']).sum().reset_index()
@@ -89,10 +95,10 @@ def data_funct(df, location, country):
 # It makes the frames of tables.
 def make_dcc_pd(country, dataframe):
     if country == "The World":
-      rows_list = ['country','cases','deaths','recovered','hospitalized','ICU','time']
+      rows_list = ['time','country','cases','deaths','recovered','hospitalized','ICU']
       dataframe = dataframe[dataframe.location == "Full Country"] 
     else:
-      rows_list = ['location','cases','deaths','recovered','hospitalized','ICU','time']
+      rows_list = ['time','location','cases','deaths','recovered','hospitalized','ICU']
       dataframe = dataframe[dataframe.country == country]
     return [dataframe.sort_values(['deaths'], axis = 0, ascending=False), rows_list]
 
@@ -416,8 +422,12 @@ world, _, _ = data_funct(df, 'Full Country', 'Full Country')
 #Eliminate hour and time:zone
 df['time'] = df['time'].str.slice(0,10)
 
+#df = df.replace(0, None)#, inplace=True)
+
 # Data for the tables and the map related to the cumulative data of the last day
 df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
+
+print(df_temp[df_temp.country == 'Montserrat'])
 
 # Save numbers into variables to use in the app
 latestDate = df_temp.sort_values('time')['time'].tail(1).values[0]
@@ -450,7 +460,6 @@ list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full 
 
 # Dictionary for the list of tables
 datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
-
 
 dcc_tables = [make_dcc_country_tab(i,df_temp) for i in list_of_extended_countries]
 fig_map = create_map(df_temp)
