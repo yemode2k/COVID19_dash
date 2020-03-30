@@ -650,7 +650,7 @@ app.index_string = """<!DOCTYPE html>
             <li> $r$ = the logistic growth rate or steepness of the curve</li>
           </ul>   
           
-    <p> If one talks about infection or death rate and aims to fit a logistic function to the data, one needs to calibrate the $K$, $t_0$ and $r$ parameters during the evolution. Its careful tracking can be very useful for assessing the efficiency measures taken to contain the disease. Interestingly, these quantities may be estimated by knowing that the following relations are satisfied,</p>
+    <p> If one talks about infection or death rate and aims to fit a logistic function to the data, one needs to calibrate the $K$, $t_0$ and $r$ parameters during the evolution. Its careful tracking can be very useful for getting zero order intuition  about the efficiency of the measures taken to contain the disease. Interestingly, these quantities may be estimated by knowing that the following relations are satisfied,</p>
      <ul> 
             <li> $t_0$ =$Log[K]$/r,</li>
              <li> $n(t_0)$ =$K$/2,</li>
@@ -658,15 +658,14 @@ app.index_string = """<!DOCTYPE html>
     </u>
     <p> Some of the quantities above can be estimated by tracking the data. On that sense, knowing (or estimating) the numbers of affected people $n(t_0)$ and the maximum rate, or what is more commonly known as the peak of the distribution, one can invert the equations to predict $K$. </p>
         
-    <h2><u>The logistic function as a SIR model:</u></h2>
-          <p> A logistic function represents a simplified form of the more complete SIR (Susceptible, Infected, Recovered) models (<a href="https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model">wiki</a>). A SIR model is a dynamical system that simulates the interaction and evolution rates of a population with N=S+I+R elements, where the dynamical variables are:</p>
+    <h2><u>The logistic function as a SI model:</u></h2>
+          <p> A logistic function represents a simplified form of the more complete SI (Susceptible, Infected) models (<a href="https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model">wiki</a>). A SI model is a dynamical system that simulates the interaction and evolution rates of a population with N=S+I elements, where the dynamical variables are:</p>
            <ol type="a"> 
-              <li> Susceptible to be infected by a disease.</li>
-              <li> Infected by the desease. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./assets/images/sirs.gif" alt="SIRs model" style="height:85px; max-width: 100%;" margin="1000px"> </li>
-              <li> Recovered from the disease. </li>
+              <li> Susceptible to be infected by a disease. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./assets/images/sirs2.png" alt="SIRs model" style="height:85px; max-width: 100%;" margin="1000px"></li>
+              <li> Infected by the desease.  </li>
             </ol>    
             
-            <p> The logistic function pops out when one considers that the recovery rate is much smaller than the infection rate. In this situation, the time scale of the communication between I and R is so small with respect to S and I, that one can drop R from the system of equations. Doing so, one recovers the expression for $N(t)$ shown above.</p>
+            <p> The logistic function arises as the solution of this dynamical system that considers a population with S people susceptible to be infected and I infected people. Here I is taken as the total cumulative infected cases that is, people that has been infected regardless of whether they recover or not. Notice that with this definition, I  it grows monotonically until it reaches a maximum, thus mimetising a Sigmoid-type behaviour. This can be naturally translated to the D number of death counts if there exists an known empirical relation between them. This applies in our particular study..</p>
                         </div>
           <h1>Simulating future possible scenarios:</h1>
                   <div id="web_content">
@@ -700,16 +699,24 @@ app.index_string = """<!DOCTYPE html>
             <li>Modelling bacterial cells within a population</li>    
           </ul>
           
-          $$N(t)=N(0)e^{-e^{-a(t-c)}}$$
+          $$N(t)=N(0)e^{-b e^{-a(t)}}$$
           
           <p>where:</p>
           
           <ul>
             <li>$N(0)$ is the initial number of cells/organisms when time is zero</li>
             <li>$a$ denotes the rate of growth</li>
-            <li>$b, c$ are positive numbers</li>
-            <li>$c$ denotes the displacement across in time</li>
+            <li>$b=e^{a c}$ is a positive numbers</li>
+            <li>$c$ denotes the displacement in time</li>
           </ul>
+            <p> Similarly to what happens with the logistc function, the variables $N(0)$, $a$ and $c$ may be estimated by checking the time series. For this function, these quantities are related with the counts and count rates as,</p>
+     <ul> 
+            <li> $t_0$ =$Log[b]$/a</li>
+             <li> $n(t_0)$ =$N(0)$/e,</li>
+              <li> $dn/dt (t_0)$= a N(0)/e.</li>
+    </u>
+    <p> Some of the quantities above can be estimated by tracking the data. On that sense, knowing (or estimating) the numbers of affected people $n(t_0)$ and the maximum rate, or what is more commonly known as the peak of the distribution, one can invert the equations to predict $N(0)$. </p>
+
       </div>
         
          <h1>Learn more:</h1>
