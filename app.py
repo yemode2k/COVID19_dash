@@ -640,8 +640,18 @@ app.index_string = """<!DOCTYPE html>
             <li> $K$ =the curve's maximum value; in this case the maximum number of deaths.</li>
             <li> $r$ = the logistic growth rate or steepness of the curve</li>
           </ul>   
-                </div>
-          <h1>Simulating possible future scenarios:</h1>
+          
+    <h2><u>The logistic function as a SIR model:</u></h2>
+          <p> A logistic function represents a simplified form of the more complete SIR (Susceptible, Infected, Recovered) models (<a href="https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model">wiki</a>). A SIR model is a dynamical system that simulates the interaction and evolution rates of a population with N=S+I+R elements, where the dynamical variables are:</p>
+           <ol type="a"> 
+              <li> Susceptible to be infected by a disease.</li>
+              <li> Infected by the desease. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="./assets/images/sirs.gif" alt="SIRs model" style="height:85px; max-width: 100%;" margin="1000px"> </li>
+              <li> Recovered from the disease. </li>
+            </ol>    
+            
+            <p> The logistic function pops out when one considers that the recovery rate is much smaller than the infection rate. In this situation, the time scale of the communication between I and R is so small with respect to S and I, that one can drop R from the system of equations. Doing so, one recovers the expression for $N(t)$ shown above.</p>
+                        </div>
+          <h1>Simulating future possible scenarios:</h1>
                   <div id="web_content">
           <p>The logistic model defined above and a nonnegative binomial distribution as likelihood, 
           to obtain the posterior predictive distribution of our model; from which we will sample to 
