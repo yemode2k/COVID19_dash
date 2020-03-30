@@ -484,9 +484,9 @@ dic_phenom_tabs['Phenom Gomper model log'] = ['figure-phenom',fig_model,['vmean'
 
 text_phenom = ["Phenomenological models:","Click here to visualise the model fits."]
 
-disclame_text = ["This data and the mathematical models provide an image of the COVID-19 situation.\
-    But be awared that the simulations and data shown here should never be used as medical predictors,\
-    and they are for informative and research purposes only;\
+disclame_text = ["This is an non-profit and collaborative initiative to understand the evolution of the COVID-19 pandemia. The data and mathematical models  used here provide an intuitive and user friendly picture of the COVID-19 situation.\
+    However, we discourage to use the simulations and data shown here as 100% accurate medical predictors,\
+    as they are produced for informative and research purposes only;\
     please use the simulated results responsibly."]
 
 
