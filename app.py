@@ -416,10 +416,15 @@ df_phenom = pd.read_json(path+'phenom.json')
 
 world, _, _ = data_funct(df, 'Full Country', 'Full Country')
 
+#Eliminate hour and time:zone
+df['time'] = df['time'].str.slice(0,10)
+
+# Data for the tables and the map related to the cumulative data of the last day
+df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
 
 # Save numbers into variables to use in the app
-df['time'] = df['time'].str.slice(0,10)
-latestDate = df['time'].tail(1).values[0]
+latestDate = df_temp.sort_values('time')['time'].tail(1).values[0]
+
 firstData = datetime.strptime(str('12/12/2019'), '%m/%d/%Y')
 daysOutbreak = (datetime.now()-firstData).days
 
@@ -449,8 +454,7 @@ list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full 
 # Dictionary for the list of tables
 datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
 
-# Data for the tables and the map related to the cumulative data of the last day
-df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
+
 dcc_tables = [make_dcc_country_tab(i,df_temp) for i in list_of_extended_countries]
 fig_map = create_map(df_temp)
 
@@ -508,6 +512,8 @@ app.title = 'Coronavirus COVID-19 Global Monitor'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
       <link rel="stylesheet" href="{{ "assets/css/main.css" | relative_url }}" />
   <!--[if lte IE 9]><link rel="stylesheet" href="{{ "assets/css/ie9.css" | relative_url }}" /><![endif]-->
   <!--[if lte IE 8]><link rel="stylesheet" href="{{ "assets/css/ie8.css" | relative_url }}" /><![endif]-->
@@ -524,6 +530,22 @@ app.index_string = """<!DOCTYPE html>
         {%favicon%}
         {%css%}
     <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=5e7f382465b3620019f35d47&product=sticky-share-buttons&cms=website' async='async'></script>
+    
+
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+
+
     </header>
     <body>
         {%app_entry%}
@@ -660,35 +682,14 @@ app.index_string = """<!DOCTYPE html>
             <li>$c$ denotes the displacement across in time</li>
           </ul>
       </div>
-      
-    <h1>External links:</h1>
-                    <div id="web_content">
-                    
-     <a href="https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6" target="_blank">
-    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/pic08.jpg" width=300 height=200>JHU CSSE map</p>
-    </a>
-    
-     <a href="https://crowdfightcovid19.org/volunteers" target="_blank">
-    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/CrowdFigth.png" width=300 height=200>CrowdFightCovid19: Collaborate!</p>
-    </a>
-    
-    <a href="https://www.who.int/" target="_blank">
-    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/who.png"  width=300 height=200>World Health Organisation</p>
-    </a>
-  
-    <a href=" https://www.facebook.com/groups/PhysicistsAgainstSARSCoV2/" target="_blank">
-    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/physASars.png" width=300 height=200>Physicists against the SARS: Collaborate!</p>
-    </a>
-    
-    <p style="clear: both;">
-    
+        
          <h1>Learn more:</h1>
                     <div id="web_content">
-      <div class="row" style="margin-top: 2.2em"; >
-        <div class="column">
+      <div class="row_web" style="margin-top: 2.2em"; >
+        <div class="column_web">
           <iframe width="100%" height="100%" src="https://www.youtube.com/embed/Kas0tIxDvrg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         </div>
-        <div class="column">
+        <div class="column_web">
           <h2>Exponential growth and epidemics:</h1>
           <p>While this video uses COVID-19 as a motivating example, 
           the main goal is simply a math lesson on exponentials 
@@ -700,11 +701,11 @@ app.index_string = """<!DOCTYPE html>
       </div>
 
 
-      <div class="row" style="margin-bottom: 2.2em";>
-          <div class="column">
+      <div class="row_web" style="margin-bottom: 2.2em";>
+          <div class="column_web">
             <iframe width="100%" height="100%" src="https://www.youtube.com/embed/R13BD8qKeTg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
           </div>
-          <div class="column">
+          <div class="column_web">
             <h2>The Bayesian Trap:</h3>
             <p>Bayes' theorem explained with examples and implications for life.</p>
             <p>by Veritasium</p>
@@ -713,9 +714,84 @@ app.index_string = """<!DOCTYPE html>
           </div>
       </div>
 
+<h1>External links:</h1>
+<div id="web_content">
+  <div class="row">
+    <div class="col-sm-3">
+        <div class="card">
+          <div class="card-body">
+            <img src="./assets/images/physASars.png" alt="PhysicistsAgainstSARSCoV2" style="height:85px; max-width: 100%;">
+            <a href="https://www.facebook.com/groups/PhysicistsAgainstSARSCoV2/"><button>
+            Facebook Page</button></a>
+          </div>  
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card">
+          <div class="card-body">
+            <img src="./assets/images/pic08.jpg" alt="arcgis" style="height:85px; max-width: 100%;">
+            <a href="https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6"><button>
+            JHU CSSE map</button></a></div>  
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card">
+          <div class="card-body">
+            <img src="./assets/images/CrowdFigth.png" alt="CrowdFigth" style="height:85px; max-width: 100%;">
+            <a href="https://crowdfightcovid19.org/volunteers"><button>
+            CrowdFightCovid19</button></a>
+          </div>  
+        </div>
+    </div>
+    <div class="col-sm-3">
+        <div class="card">
+          <div class="card-body">
+            <img src="./assets/images/who.png" alt="who" style="height:85px;  max-width: 100%;">
+            <a href="https://www.who.int/">
+            <button>W.H.O.</button></a>
+          </div>  
+        </div>
+    </div>
+  </div>
+</div>
+
+
+<h1>People:</h1>
+<div id="web_content">
+      <div class="row">
+        <div class="col-sm-6">
+            <div class="card">
+              <div class="card-body">
+                <div style="width:278px;height:278px;overflow:hidden">
+                  <img src="./assets/miki.png" alt="miki" style="width:100%">
+                </div>  
+                <h1>Miquel Oliver</h1>
+                <p class="title"></p>
+                <p style="color: black" style="color: black">Data Scientist, PhD in Physics</p>
+                <a href="https://www.linkedin.com/in/miquel-oliver-almi%C3%B1ana-0123a9a2/"><i class="fa fa-linkedin"></i></a>
+              </div>  
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card">
+              <div class="card-body">
+                <div style="width:278px;height:278px;overflow:hidden">
+                  <img src="./assets/xisco.png" alt="xisco" style="width:100%">
+                </div> 
+                <h1>Xisco Jimenez</h1>
+                <p style="color: black" class="title"></p>
+                <p style="color: black">PhD Physics</p>
+                <a href="https://www.linkedin.com/in/xisco-jimenez-forteza/"><i class="fa fa-linkedin"></i></a>
+              </div>
+            </div>
+        </div>
+      </div>
+  </div>
 
   </div>
 </div>
+
+
 
         <footer>
             {%config%}
