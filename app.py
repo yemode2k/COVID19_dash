@@ -650,6 +650,14 @@ app.index_string = """<!DOCTYPE html>
             <li> $r$ = the logistic growth rate or steepness of the curve</li>
           </ul>   
           
+    <p> If one talks about infection or death rate and aims to fit a logistic function to the data, one needs to calibrate the $K$, $t_0$ and $r$ parameters during the evolution. Its careful tracking can be very useful for assessing the efficiency measures taken to contain the disease. Interestingly, these quantities may be estimated by knowing that the following relations are satisfied,</p>
+     <ul> 
+            <li> $t_0$ =$Log[K]$/r,</li>
+             <li> $n(t_0)$ =$K$/2,</li>
+              <li> $dn/dt (t_0)$= r K/4.</li>
+    </u>
+    <p> Some of the quantities above can be estimated by tracking the data. On that sense, knowing (or estimating) the numbers of affected people $n(t_0)$ and the maximum rate, or what is more commonly known as the peak of the distribution, one can invert the equations to predict $K$. </p>
+        
     <h2><u>The logistic function as a SIR model:</u></h2>
           <p> A logistic function represents a simplified form of the more complete SIR (Susceptible, Infected, Recovered) models (<a href="https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SIR_model">wiki</a>). A SIR model is a dynamical system that simulates the interaction and evolution rates of a population with N=S+I+R elements, where the dynamical variables are:</p>
            <ol type="a"> 
