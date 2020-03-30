@@ -315,10 +315,10 @@ def create_map(df_temp,  longitude= 6.395626, latitude= 14.056159, zoom = 1, bac
           y=-.01,
           align='center',
           showarrow=False,
-          text=".... description here ....",
+          text="This map collects the COVID19 statistics for several countries/regions around the world. Click on the map the country/region to see a summary of their statisics. <br /> Click the tabs below to visualize the time series evolution of the disease for each country/region.",
           xref="paper",
           yref="paper",
-          font=dict(size=10, color='#e6e3e3'),
+          font=dict(size=13, color='#e6e3e3'),
       )],
       mapbox=go.layout.Mapbox(
           accesstoken=mapbox_access_token,
@@ -438,10 +438,10 @@ DeathsInPercent = np.round(DeathsToday/TotalDeaths*100)
 
 # Define dictionary for initial baners.
 dic_first = {}
-dic_first["Days Since Outbreak"] = ['-----    -----', str(daysOutbreak), days_size_color]
-dic_first["Confirmed Cases"] = [str(CasesToday[0]) +' increase of '+ str(CasesInPercent[0]) + '%', str(Totalcases[0]), cases_color]
-dic_first["Recovered Cases"] = [str(RecoveredToday[0]) +' increase of '+ str(RecoveredInPercent[0]), str(TotalRecovered[0]) , recovered_color]
-dic_first["Death Cases"] = [str(DeathsToday[0]) +' increase of '+ str(DeathsInPercent[0]), str(TotalDeaths[0]), deaths_color]
+dic_first["World # Days Since Outbreak"] = ['-----    -----', str(daysOutbreak), days_size_color]
+dic_first["World  Confirmed Cases"] = ['New Cases: '+str(CasesToday[0]) +'  (+'+ str(CasesInPercent[0]) + ')%', str(Totalcases[0]), cases_color]
+dic_first["World Recovered Cases"] = ['New Cases: '+str(RecoveredToday[0]) +'  (+'+ str(RecoveredInPercent[0]) + ')%', str(TotalRecovered[0]) , recovered_color]
+dic_first["World Death Cases"] = ['New Cases: '+str(DeathsToday[0]) +'  (+'+ str(DeathsInPercent[0])+'%)', str(TotalDeaths[0]), deaths_color]
 
 # List of regions
 list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full Country'].country.unique())
@@ -660,8 +660,30 @@ app.index_string = """<!DOCTYPE html>
             <li>$c$ denotes the displacement across in time</li>
           </ul>
       </div>
-
-
+      
+    <h1>External links:</h1>
+                    <div id="web_content">
+                    
+     <a href="https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6" target="_blank">
+    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/pic08.jpg" width=300 height=200>JHU CSSE map</p>
+    </a>
+    
+     <a href="https://crowdfightcovid19.org/volunteers" target="_blank">
+    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/CrowdFigth.png" width=300 height=200>CrowdFightCovid19: Collaborate!</p>
+    </a>
+    
+    <a href="https://www.who.int/" target="_blank">
+    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/who.png"  width=300 height=200>World Health Organisation</p>
+    </a>
+  
+    <a href=" https://www.facebook.com/groups/PhysicistsAgainstSARSCoV2/" target="_blank">
+    <p style="float: left; font-size: 9pt; text-align: center; width: 23.5%; margin-right: 1%; margin-bottom: 0.5em;"><img src="/assets/images/physASars.png" width=300 height=200>Physicists against the SARS: Collaborate!</p>
+    </a>
+    
+    <p style="clear: both;">
+    
+         <h1>Learn more:</h1>
+                    <div id="web_content">
       <div class="row" style="margin-top: 2.2em"; >
         <div class="column">
           <iframe width="100%" height="100%" src="https://www.youtube.com/embed/Kas0tIxDvrg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -736,7 +758,7 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
                 html.Div(style={'height':'1px', 'width': '80%','display': 'block', 'margin-top':' 0.5em', 'margin-bottom':' 1.3em', 'backgroundColor': background_color_banners}),
                 html.H2(style={'font_size': '1em', 'padding-top':' 1em', 'width': '75%'}, id='web_subtitle', children="This website aims to help increase the public’s understanding of the evolving pandemic outbreak."),
                 html.H6(id='web_authors', children="Miquel Oliver & Xisco Jimenez Forteza."),  
-                html.P(style={'font-weight': 'bold'}, id='web_update_date', children="Latest Update Date" + str(latestDate))]),
+                html.P(style={'font-weight': 'bold'}, id='web_update_date', children="Last Update: " + str(latestDate))]),
             ]),
         ######## ######## ########
         ### Principal Dashboar ###
@@ -747,7 +769,7 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
                           'marginRight': '.8%', 'verticalAlign': 'top',
                   'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)', 'backgroundColor': background_color_banners},
                           children=[
-                                  html.P(style={'textAlign': 'center', 'font_size': '0.3em', 'color': value[2], 'padding': '.5rem'},
+                                  html.P(style={'textAlign': 'center', 'font_size': '1em', 'color': value[2], 'padding': '.5rem'},
                                                               children=value[0]),
                                   html.H1(style={'textAlign': 'center', 'fontWeight': 'bold', 'color': value[2]},
                                                   children=[value[1]]),
