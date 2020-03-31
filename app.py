@@ -49,7 +49,8 @@ color_fort_map = '#e6e3e3'
 def add_growth(data, field):
     if np.sum(data.columns.str.contains(field)):
       #data = data.drop([data.columns.str.contains(field+'-GR')],axis = 1)
-      N = sum(data[field] <= 20)
+
+      N = sum(data[field] <= 2)
 
       Data0 = data.T[data.columns.str.contains(field)].T
       Data1 = Data0.shift(-1, axis = 0)
@@ -59,12 +60,13 @@ def add_growth(data, field):
       for cn in ['-GR','-PK']:
         Growthr = (Data1-Data0)
         if cn == '-GR':
+          N = sum(data[field] <= 20)
           Growthr = Growthr/(Data1 + epsilon)
         Growthr.columns = Growthr.columns.str.replace(field,field+cn)
         Growthr = Growthr.T.shift(1, axis = 1).T
         if cn == '-GR':        
           Growthr = Growthr.clip(0, 1)*100
-        Growthr.iloc[0:N] = np.nan
+        #Growthr.iloc[0:N] = np.nan
         Growthr.iloc[-1] = np.nan
         data[field+cn] = Growthr[field+cn]
     return data
@@ -427,8 +429,6 @@ df['time'] = df['time'].str.slice(0,10)
 # Data for the tables and the map related to the cumulative data of the last day
 df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
 
-print(df_temp[df_temp.country == 'Montserrat'])
-
 # Save numbers into variables to use in the app
 latestDate = df_temp.sort_values('time')['time'].tail(1).values[0]
 
@@ -437,6 +437,8 @@ daysOutbreak = (datetime.now()-firstData).days
 
 
 Totalcases = world.cases.tail(1).values
+#world.time.tail(3).values
+#world.cases.tail(3).values
 CasesToday = np.round((world.cases.tail(1).values - world.cases.tail(2).values[0]))
 CasesInPercent = np.round(CasesToday/Totalcases*100)
 
