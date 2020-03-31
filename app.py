@@ -655,7 +655,7 @@ app.index_string = """<!DOCTYPE html>
             <li> $t_0$ =$Log[K]$/r,</li>
              <li> $n(t_0)$ =$K$/2,</li>
               <li> $dn/dt (t_0)$= r K/4.</li>
-             <li>   time to double: $t_2 = (Log[(2 K)/(-1 + K)])/r $</li>
+             <li>   time to double: $t_2 = (Log[-((2 E^(a t) K)/(E^(a t) - K))])/r $</li>
     </u>
     <p> Some of the quantities above can be estimated by tracking the data. On that sense, knowing (or estimating) the numbers of affected people $n(t_0)$ and the maximum rate, or what is more commonly known as the peak of the distribution, one can invert the equations to predict $K$. </p>
         
@@ -715,7 +715,7 @@ app.index_string = """<!DOCTYPE html>
             <li> $t_0$ =$Log[b]$/a</li>
              <li> $n(t_0)$ =$N(0)$/e,</li>
               <li> $dn/dt (t_0)$= a N(0)/e.</li>
-            <li>   time to double: $t_2 = ( Log[b/(2 Log[E^b/2])])/a$</li>
+            <li>   time to double: $t_2 = (Log[b/(Log[1/2 E^(b E^(-a t))])])/a$</li>
     </u>
     <p> Some of the quantities above can be estimated by tracking the data. On that sense, knowing (or estimating) the numbers of affected people $n(t_0)$ and the maximum rate, or what is more commonly known as the peak of the distribution, one can invert the equations to predict $N(0)$. </p>
 
