@@ -699,14 +699,14 @@ app.index_string = """<!DOCTYPE html>
             <li>Modelling bacterial cells within a population</li>    
           </ul>
           
-          $$N(t)=N(0)e^{-b e^{-a(t)}}$$
+          $$N(t)=N(0)e^{-b e^{-a t }}$$
           
           <p>where:</p>
           
           <ul>
             <li>$N(0)$ is the initial number of cells/organisms when time is zero</li>
             <li>$a$ denotes the rate of growth</li>
-            <li>$b=e^{a c}$ is a positive numbers</li>
+            <li>$b=e^{a c}$ is a positive number</li>
             <li>$c$ denotes the displacement in time</li>
           </ul>
             <p> Similarly to what happens with the logistc function, the variables $N(0)$, $a$ and $c$ may be estimated by checking the time series. For this function, these quantities are related with the counts and count rates as,</p>
