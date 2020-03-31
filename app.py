@@ -76,12 +76,11 @@ def data_funct(df, location, country, zoom = 1):
   df_temp = df[df.country.isin([country]) & df.location.isin([location])].groupby('time').max().sort_values(['time']).reset_index()
 
   for cn in ['deaths','cases','recovered']: #,'hospitalized','ICU']:
-      A = df_temp[cn].values
+      A = df_temp[cn].interpolate().values
       A[-10:] = np.maximum.accumulate(A[-10:])
-      A = np.minimum.accumulate(A[::-1])[::-1]
-      df_temp[cn] = A
+      df_temp[cn] =  np.minimum.accumulate(A[::-1])[::-1]
       df_temp = add_growth(df_temp, cn)  
-          
+  
   return df_temp, country, location, df_temp.longitude.unique()[0], df_temp.latitude.unique()[0], zoom
 
 # It makes the frames of tables.
@@ -279,7 +278,7 @@ def create_map(df_temp,  longitude= 6.395626, latitude= 14.056159, zoom = 1, bac
       lon=df_temp.longitude.values,
       mode='markers',
       marker=go.scattermapbox.Marker(
-          size=3,
+          size=0,
           color=[map_selectcolor(df_temp.loc[i], i,'inner') for i in df_temp.index],
           opacity=1
       ),
@@ -336,8 +335,7 @@ def create_map(df_temp,  longitude= 6.395626, latitude= 14.056159, zoom = 1, bac
 
 # Select the the colors of the map
 def map_selectcolor(df, i, location):
-  Mapcolor_dic = {'Full Country':'#F4F6F7','Partial':'#909497','Infected':'#F1948A','Severe':'#d7191c','Alert':'#F4D03F','Cured':'#1a9622'}
-  
+  Mapcolor_dic = {'Full Country':'#000000','Partial':'#000000','Cured':'#1a9622','Infected':'#ffd000','Alert':'#ff7300','Severe':'#d4f18a'}
 
   count = np.nan_to_num(df.cases) - np.nan_to_num(df.deaths) - np.nan_to_num(df.recovered)
 
@@ -349,13 +347,15 @@ def map_selectcolor(df, i, location):
     color =  Mapcolor_dic['Alert']
   if count > 10000:
     color =  Mapcolor_dic['Severe']    
-
+    
+  """
   if location == 'inner':
     if df.location == 'Full Country':
-      return color
+      return Mapcolor_dic['Full Country']
     else:
       return Mapcolor_dic['Partial']
-
+  """
+  
   return color   
 
 # Create traces for phenom fit
@@ -408,13 +408,9 @@ def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexsca
 df = pd.read_json(path+'cases_world.json')
 loc_dic_df = pd.read_json(path+'locations.json')
 df_phenom = pd.read_json(path+'phenom.json')
- 
-world = data_funct(df, 'countries in the table', 'The World')[0]
 
 #Eliminate hour and time:zone
 df['time'] = df['time'].str.slice(0,10)
-
-#df = df.replace(0, None)#, inplace=True)
 
 # Data for the tables and the map related to the cumulative data of the last day
 df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
@@ -425,6 +421,7 @@ latestDate = df_temp.sort_values('time')['time'].tail(1).values[0]
 firstData = datetime.strptime(str('12/12/2019'), '%m/%d/%Y')
 daysOutbreak = (datetime.now()-firstData).days
 
+world = data_funct(df, 'countries in the table', 'The World')[0]
 
 Totalcases = world.cases.tail(1).values
 #world.time.tail(3).values
@@ -452,6 +449,8 @@ list_of_extended_countries = np.append(['The World','Spain'],df[(df['location'] 
 
 # Dictionary for the list of tables
 datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
+
+print(df_temp[df_temp.country == 'Netherlands'])
 
 dcc_tables = [make_dcc_country_tab(i,df_temp) for i in list_of_extended_countries]
 fig_map = create_map(df_temp)
@@ -494,15 +493,15 @@ disclame_text = ["This is an non-profit and collaborative initiative to understa
 ##################################################################################################
 # Start dash app
 ##################################################################################################
-
 app = dash.Dash(__name__,
                 assets_folder='./assets/',
                 meta_tags=[
                     {"name": "author", "content": "Miquel Oliver"},
-                    {"name": "description", "content": "The coronavirus COVID-19 monitor."},
-                    {"property": "og:title", "content": "Coronavirus COVID-19 Outbreak Global Cases Monitor Dashboard"},
+                    {"name": "description", "content": "This website aims to help increase the public’s understanding of the evolving pandemic outbreak."},
+                    {"property": "og:title", "content": "COVID-19 Statistics and Research." },
                     {"property": "og:type", "content": "website"},
-                    {"property": "og:url", "content": "https://..... our web ......com/"},
+                    {"property": "og:url", "content": "http://mkefly.github.io/"},
+                    {"property": "og:image", "content": "./assets/banner2.png"},
                     {"property": "og:description", "content": "The coronavirus COVID-19 monitor/dashboard provides up-to-date data and map for the global spread of coronavirus."},
                     {"name": "viewport", "content": "width=device-width, height=device-height, initial-scale=1.0"}
                 ]
@@ -515,6 +514,7 @@ app.title = 'Coronavirus COVID-19 Global Monitor'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
+    <link rel="icon" sizes="128x128" href="./assets/banner2.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
       <link rel="stylesheet" href="{{ "assets/css/main.css" | relative_url }}" />
@@ -880,8 +880,8 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
                           'marginRight': '.8%', 'verticalAlign': 'top',
                   'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)', 'backgroundColor': background_color_banners},
                           children=[
-                                  html.P(style={'textAlign': 'center', 'font_size': '1em', 'color': value[2], 'padding': '.5rem'},
-                                                              children=value[0]),
+                                  #html.P(style={'textAlign': 'center', 'font_size': '1em', 'color': value[2], 'padding': '.5rem'},
+                                  #                            children=value[0]),
                                   html.H1(style={'textAlign': 'center', 'fontWeight': 'bold', 'color': value[2]},
                                                   children=[value[1]]),
                                   html.P(style={'textAlign': 'center', 'color': value[2], 'padding': '.1rem'},
