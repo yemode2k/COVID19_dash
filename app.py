@@ -72,27 +72,17 @@ def add_growth(data, field):
     return data
 
 # It generates blocks per country, regions etc.
-def data_funct(df, location, country):
-  if (country == 'Full Country') & (location == 'Full Country'):
-    A = df[df['location'] == 'Full Country'].groupby(['time']).sum()
-    B = df[df['location'] != 'Full Country'].groupby(['time']).sum()
-    A[['hospitalized','ICU','recovered']] = B[['hospitalized','ICU','recovered']]
-    df_temp = A.reset_index()
-    country = 'The entire'
-    location = 'World'
-    for cn in ['deaths','cases','recovered']: #,'hospitalized','ICU']:
-        A = df_temp[cn].values
-        A[-10:] = np.maximum.accumulate(A[-10:])
-        A = np.minimum.accumulate(A[::-1])[::-1]
-        df_temp[cn] = A
-  else:
-    if (sum(country == np.append(df[df['location'] != 'Full Country'].country.unique(),'World')))&(location == 'Full Country'):
-      df_temp = df[(df.country == country)&(df.location != 'Full Country')].groupby(['time']).sum().reset_index()
-    else:
-      df_temp = df[(df['location'] == location)&(df['country'] == country)]
-  for k in ['deaths','cases']:
-    df_temp = add_growth(df_temp, k)
-  return df_temp, country, location
+def data_funct(df, location, country, zoom = 1):
+  df_temp = df[df.country.isin([country]) & df.location.isin([location])].groupby('time').max().sort_values(['time']).reset_index()
+
+  for cn in ['deaths','cases','recovered']: #,'hospitalized','ICU']:
+      A = df_temp[cn].values
+      A[-10:] = np.maximum.accumulate(A[-10:])
+      A = np.minimum.accumulate(A[::-1])[::-1]
+      df_temp[cn] = A
+      df_temp = add_growth(df_temp, cn)  
+          
+  return df_temp, country, location, df_temp.longitude.unique()[0], df_temp.latitude.unique()[0], zoom
 
 # It makes the frames of tables.
 def make_dcc_pd(country, dataframe):
@@ -398,7 +388,7 @@ def create_add_phenom_trace(fig, df_phenom, dic_phenom):
 
 # Update line plots
 def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexscale, typeyscale, yaxis_title):
-    df_temp, country, location, zoom, longitude, latitude = get_data_update(vals)
+    df_temp, country, location, longitude, latitude, zoom = get_data_update(vals)
 
     # Create empty figure canvas
     fig = go.Figure()
@@ -418,8 +408,8 @@ def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexsca
 df = pd.read_json(path+'cases_world.json')
 loc_dic_df = pd.read_json(path+'locations.json')
 df_phenom = pd.read_json(path+'phenom.json')
-
-world, _, _ = data_funct(df, 'Full Country', 'Full Country')
+ 
+world = data_funct(df, 'countries in the table', 'The World')[0]
 
 #Eliminate hour and time:zone
 df['time'] = df['time'].str.slice(0,10)
@@ -458,7 +448,7 @@ dic_first["World Recovered Cases"] = ['New Cases: '+str(RecoveredToday[0]) +'  (
 dic_first["World Death Cases"] = ['New Cases: '+str(DeathsToday[0]) +'  (+'+ str(DeathsInPercent[0])+'%)', str(TotalDeaths[0]), deaths_color]
 
 # List of regions
-list_of_extended_countries = np.append(['The World'],df[df['location'] != 'Full Country'].country.unique())
+list_of_extended_countries = np.append(['The World','Spain'],df[(df['location'] != 'Full Country')&(df['country'] != 'The World')&(df['country'] != 'Spain')].country.unique())
 
 # Dictionary for the list of tables
 datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
@@ -964,31 +954,22 @@ def get_data_update(vals):
     df_temp_table = df.sort_values('time').groupby(['country','location']).tail(1)
     df_temp_table, _ = make_dcc_pd(vals[0], df_temp_table.copy())
 
-    location = vals[0]
+    country = vals[0]
 
     zoom = 1
-    if location == 'The World':
-      location = 'Full Country'
-      country = 'Full Country'
-      longitude = 6.395626
-      latitude = 14.056159 
+    if country == 'The World':
+      location = 'countries in the table'
     else:
       zoom = 3
-      country = location
       location = 'Full Country'
-      longitude = loc_dic_df[country][0]
-      latitude = loc_dic_df[country][1]
 
     index_value = vals[list_tables.index(vals[0])*2+1]
 
     if index_value:
       country = df_temp_table.iloc[index_value[0]]['country']
-      location = df_temp_table.iloc[index_value[0]]['location']
-      longitude = df_temp_table.iloc[index_value[0]]['longitude']
-      latitude = df_temp_table.iloc[index_value[0]]['latitude']      
+      location = df_temp_table.iloc[index_value[0]]['location']   
       zoom = 5
-
-    return data_funct(df, location, country)[0], location, country, zoom, longitude, latitude
+    return data_funct(df, location, country, zoom)
 
 list_tables = [i.partition('datatable-interact-location-')[2] for i in datatable_interact]
 
@@ -1000,7 +981,7 @@ flatten_inputs = sum(B, [])
     Output('datatable-interact-map', 'figure'), [Input('tabs-table', 'value')]+flatten_inputs
 )
 def update_figures(*vals):
-    df_temp, country, location, zoom, longitude, latitude = get_data_update(vals)
+    df_temp, country, location, longitude, latitude, zoom = get_data_update(vals)
     df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
     textList = [df.country, df.location]
 
@@ -1028,7 +1009,7 @@ def update_logplot(*vals):
     fig = go.Figure()
     th = 500 # threshold for countries to be shown.
     for i, cn in enumerate(df[df['deaths'] > th].reset_index()['country'].unique()):
-      df_temp = df[(df['location'] == 'Full Country')&(df['country'] == cn)].groupby('time').sum()
+      df_temp = df[(df['location'] == 'Full Country')&(df['country'] == cn)].groupby('time').max()
       df_temp = df_temp[df_temp['deaths'] > th].reset_index()
       create_add_trace(fig, df_temp, list_cn = ['deaths'], name_list = [cn+' deaths'], hovertext_list = [cn+' deaths'], N = len(list_of_extended_countries)+1, iadd = i)
       figure_top_style(fig, xscale = "date", yscale = "log")
