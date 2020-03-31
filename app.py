@@ -514,7 +514,7 @@ app.title = 'Coronavirus COVID-19 Global Monitor'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
-    <meta property="og:image" content="http://ia.media-imdb.com/images/rock.jpg" />
+    <meta property="og:image" content="./assets/banner2.png" />
     <link rel="icon" sizes="128x128" href="./assets/banner2.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
