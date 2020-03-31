@@ -501,7 +501,7 @@ app = dash.Dash(__name__,
                     {"property": "og:title", "content": "COVID-19 Statistics and Research." },
                     {"property": "og:type", "content": "website"},
                     {"property": "og:url", "content": "http://mkefly.github.io/"},
-                    {"property": "og:image", "content": "./assets/banner2.png"},
+                    {"property": "og:image", "content": "https://mkeflycovid19.herokuapp.com/assets/map.png"},
                     {"property": "og:description", "content": "The coronavirus COVID-19 monitor/dashboard provides up-to-date data and map for the global spread of coronavirus."},
                     {"name": "viewport", "content": "width=device-width, height=device-height, initial-scale=1.0"}
                 ]
@@ -514,8 +514,8 @@ app.title = 'Coronavirus COVID-19 Global Monitor'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
-    <meta property="og:image" content="./assets/banner2.png" />
-    <link rel="icon" sizes="128x128" href="./assets/banner2.png">
+    <meta property="og:image" content="https://mkeflycovid19.herokuapp.com/assets/map.png" />
+    <link rel="icon" sizes="128x128" href="https://mkeflycovid19.herokuapp.com/assets/map.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
       <link rel="stylesheet" href="{{ "assets/css/main.css" | relative_url }}" />
