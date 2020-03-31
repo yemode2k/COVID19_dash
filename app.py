@@ -335,7 +335,7 @@ def create_map(df_temp,  longitude= 6.395626, latitude= 14.056159, zoom = 1, bac
 
 # Select the the colors of the map
 def map_selectcolor(df, i, location):
-  Mapcolor_dic = {'Full Country':'#000000','Partial':'#000000','Cured':'#1a9622','Infected':'#ffd000','Alert':'#ff7300','Severe':'#d4f18a'}
+  Mapcolor_dic = {'Full Country':'#000000','Partial':'#000000','Cured':'#1a9622','Infected':'#ffd000','Alert':'#ff7300','Severe':'#ff0000'}
 
   count = np.nan_to_num(df.cases) - np.nan_to_num(df.deaths) - np.nan_to_num(df.recovered)
 
