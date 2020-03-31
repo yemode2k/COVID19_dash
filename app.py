@@ -199,7 +199,7 @@ def figure_top_style(fig, tickList = None, xscale = "liner", yscale = "liner"):
 
   return fig
 # Plot style for figures 2
-def figure_top_style_2(fig, country, location, backgroundColorplots = backgroundColorplots, yaxis_title="Cumulative cases numbers"):
+def figure_top_style_2(fig, country, location, backgroundColorplots = backgroundColorplots, yaxis_title="Cumulative cases numbers", xaxis_title = "Select A Location From Table"):
   # Customise layout
   fig.update_layout(
       margin=go.layout.Margin(
@@ -231,7 +231,7 @@ def figure_top_style_2(fig, country, location, backgroundColorplots = background
           gridwidth=.1,
           tickmode='array',
       ),
-      xaxis_title="Select A Location From Table",
+      xaxis_title=xaxis_title,
       xaxis=dict(
           showline=False, linecolor='#272e3e',
           showgrid=False,
@@ -1013,7 +1013,7 @@ def update_logplot(*vals):
       df_temp = df_temp[df_temp['deaths'] > th].reset_index()
       create_add_trace(fig, df_temp, list_cn = ['deaths'], name_list = [cn+' deaths'], hovertext_list = [cn+' deaths'], N = len(list_of_extended_countries)+1, iadd = i)
       figure_top_style(fig, xscale = "date", yscale = "log")
-      figure_top_style_2(fig, 'Log plot', 'countries with more than 500 deaths')
+      figure_top_style_2(fig, 'Log plot', 'countries > 500 deaths', xaxis_title = "Days after 100 cases")
   else:
     fig = update_line_plot(vals, list_cn= dic_tabs[tab][2], name_list = dic_tabs[tab][2], hovertext_list = dic_tabs[tab][2], N = len(dic_tabs[tab][2]), iadd = 0, typexscale = 'date', typeyscale = dic_tabs[tab][-1], yaxis_title = dic_tabs[tab][-2])
   return fig
@@ -1036,9 +1036,9 @@ def update_logplot(*vals):
 
   fig_model = create_add_phenom_trace(fig_model, df_phenom, dic_phenom = dic_phenom_tabs[tab])  
   # Add trace to the figure
-
-  figure_top_style(fig_model, xscale = "date", yscale = dic_phenom_tabs[tab][-1],)
-  figure_top_style_2(fig_model, 'Phenom', '')
+      
+  figure_top_style(fig_model, xscale = "date", yscale = dic_phenom_tabs[tab][-1])
+  figure_top_style_2(fig_model, 'Phenom', '', xaxis_title = "Date", yaxis_title = "Cumulative numbers of deaths")
   return fig_model
 
 if __name__ == "__main__":
