@@ -666,7 +666,7 @@ app.index_string = """<!DOCTYPE html>
               <li> Infected by the desease.  </li>
             </ol>    
             
-            <p> The logistic function arises as the solution of this dynamical system that considers a population with S people susceptible to be infected and I infected people. Here I is taken as the total cumulative infected cases that is, people that has been infected regardless of whether they recover or not. Notice that with this definition, I  it grows monotonically until it reaches a maximum, thus mimetising a Sigmoid-type behaviour. This can be naturally translated to the D number of death counts if there exists an known empirical relation between them. This applies in our particular study..</p>
+            <p> The logistic function arises as the solution of this dynamical system that deals with the flow of people from S to I. Here I is taken as the total cumulative infected cases that is, people that has been infected regardless of whether they recover or not. Notice that with this definition, I  it grows monotonically until it reaches a maximum, thus mimetising a Sigmoid-type behaviour. This can be naturally translated to the K number of death counts if there exists a known empirical relation between them. This applies in our particular study..</p>
                         </div>
           <h1>Simulating future possible scenarios:</h1>
                   <div id="web_content">
