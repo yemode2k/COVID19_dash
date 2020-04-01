@@ -136,8 +136,8 @@ def colhex(color):
   return matplotlib.colors.to_hex(color)
 
 # It create the plots using the loaded data
-def create_add_trace(fig, df_temp, list_cn, name_list, hovertext_list, N = 10, iadd = 0, backgroundColorplots = backgroundColorplots):
-  colors = plt.cm.rainbow(np.linspace(0, 1, N))
+def create_add_trace(fig, df_temp, list_cn, name_list, hovertext_list, N = 100, iadd = 0, backgroundColorplots = backgroundColorplots):
+  colors = plt.cm.rainbow(np.linspace(0, 1, N), iadd)
   for i, cn in enumerate(list_cn):  
     fig.add_trace(go.Scatter(x=df_temp['time'], y=df_temp[cn],
                                       mode='lines+markers',
@@ -1009,10 +1009,12 @@ def update_logplot(*vals):
   if tab == 'More than 500 deaths logscale':
     fig = go.Figure()
     th = 500 # threshold for countries to be shown.
-    for i, cn in enumerate(df[df['deaths'] > th].reset_index()['country'].unique()):
+    list_cn = df[df['deaths'] > th].reset_index()['country'].unique()
+    for i, cn in enumerate(list_cn):
       df_temp = df[(df['location'] == 'Full Country')&(df['country'] == cn)].groupby('time').max()
       df_temp = df_temp[df_temp['deaths'] > th].reset_index()
-      create_add_trace(fig, df_temp, list_cn = ['deaths'], name_list = [cn+' deaths'], hovertext_list = [cn+' deaths'], N = len(list_of_extended_countries)+1, iadd = i)
+
+      create_add_trace(fig, df_temp, list_cn = ['deaths'], name_list = [cn+' deaths'], hovertext_list = [cn+' deaths'], N = len(list_cn)+1, iadd = i)
       figure_top_style(fig, xscale = "date", yscale = "log")
       figure_top_style_2(fig, 'Log plot', 'countries > 500 deaths', xaxis_title = "Days after 100 cases")
   else:
