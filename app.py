@@ -515,7 +515,7 @@ app.title = 'Coronavirus COVID-19 Global Monitor'
 app.index_string = """<!DOCTYPE html>
 <html>
     <head>
-    <meta property="og:image" content="https://mkeflycovid19.herokuapp.com/assets/map.png" />
+    
     <link rel="icon" sizes="128x128" href="https://mkeflycovid19.herokuapp.com/assets/map.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -550,6 +550,12 @@ app.index_string = """<!DOCTYPE html>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
 
+    <meta property='og:title' content="COVID-19 Statistics and Research."/>
+    <meta property='og:url' content="https://mkeflycovid19.herokuapp.com/"/>
+    <meta property='og:description' content="The coronavirus COVID-19 monitor/dashboard provides up-to-date data and map for the global spread of coronavirus."/>
+    <meta property='og:image' content="http://mkeflycovid19.herokuapp.com/assets/map.png"/>
+    <meta name="twitter:image" content="http://mkeflycovid19.herokuapp.com/assets/map.png">
+    <meta property="og:image:secure_url" content="https://mkeflycovid19.herokuapp.com/assets/map.png" />
 
     </header>
     <body>
