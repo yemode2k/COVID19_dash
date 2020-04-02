@@ -17,6 +17,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+import Simulations_COVID19 as SCovid19 
 
 path='./assets/data/'
 
@@ -1044,5 +1045,71 @@ def update_logplot(*vals):
   figure_top_style_2(fig_model, 'Phenom', '', xaxis_title = "Date", yaxis_title = "Cumulative numbers of deaths")
   return fig_model
 
+@app.callback(Output('tabs-content-b-SEIRDs-plots', 'children'),
+              [Input('tabs-b-SEIRDs-plots', 'value')])
+def render_content(tab):
+  if tab != 'b-SEIRDs models':
+    figure=dic_phenom_tabs[tab][1]
+    return dcc.Graph(id=dic_phenom_tabs[tab][0], style={'height': '300px'}, figure=figure,)
+
 if __name__ == "__main__":
     app.run_server()
+
+"""
+@p.callback(
+    Output('figure-b-SEIRDs', 'figure'), [Input('tabs-b-SEIRDs-plots', 'value')]
+)
+def update_logplot(*vals):
+      # Create empty figure canvas
+  tab = vals[0]
+  fig_model = go.Figure()
+
+  Country = 'Spain, Andalucía'
+  delta, gammaR, gammaD, mu, beta0, alpha, beta_t0, omega, epsilon, population, th_I = df[Country]
+  
+  #data = df[(df['location'] == 'Full Country')&(df['country'] == cn)].groupby('time').max()
+  
+  simulator = SCovid19.seirds_simulator(data, delta, gammaR, gammaD, mu, beta0, alpha, beta_t0, omega, epsilon, population, th_I = th_I)
+  simulator.integrate()
+
+
+  fig_model = create_add_siers_trace(fig_model, simulator, data)  
+  # Add trace to the figure
+      
+  figure_top_style(fig_model, xscale = "date", yscale = dic_phenom_tabs[tab][-1])
+  figure_top_style_2(fig_model, 'b-SEIRDs', '', xaxis_title = "Date", yaxis_title = "Cumulative number")
+  return fig_model
+  
+# Create traces for phenom fit
+def create_add_siers_trace(fig, simulator, data):
+  
+  iadd = 0
+  time  = 1
+  results = {}
+  results['infected'] = simulator.IR + simulator.IR
+  results['recovered'] = simulator.R
+  results['deaths'] = simulator.D
+  results['cases'] = results['I'] + results['R'] + results['D']
+  results['daily'] = results['I'] + results['R'] + results['D']
+  results['daily'] = np.roll(results['daily'], - 1) - results['daily']
+  results['daily'][-1] = 0
+  
+  colors = plt.cm.rainbow(np.linspace(0, 1, len(df_phenom['Country'].unique())))
+  
+  for keys, value in results.items:
+    
+    fig.add_trace(go.Scatter(x=time, y=value,
+                                   mode='lines',
+                                   line_shape='linear',
+                                   name= keys.capitalize(),
+                                   line=dict(color=colhex(colors[iadd]), width=1, dash='dash'),
+                                   ))
+    
+    fig.add_trace(go.Scatter(x=data['time'], y=data[keys],
+                               mode='markers',
+                               name= 'data',
+                               marker=dict(size=4, color='#f4f4f2', line=dict(width=2, color=colhex(colors[iadd])))))
+    
+    iadd += 1
+  return fig
+"""
