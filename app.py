@@ -417,10 +417,12 @@ df_phenom = pd.read_json(path+'phenom.json')
 df['time'] = df['time'].str.slice(0,10)
 
 # Data for the tables and the map related to the cumulative data of the last day
-df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
+df_temp = df.groupby(['country','location','time']).max().reset_index().sort_values('time').groupby(['country','location']).tail(1)
+
+print(df_temp[df_temp.country == 'Spain'])
 
 # Save numbers into variables to use in the app
-latestDate = df_temp.sort_values('time')['time'].tail(1).values[0]
+latestDate = df_temp.sort_values('time')['time'].values[0]
 
 firstData = datetime.strptime(str('12/12/2019'), '%m/%d/%Y')
 daysOutbreak = (datetime.now()-firstData).days
@@ -454,7 +456,6 @@ list_of_extended_countries = np.append(['The World','Spain'],df[(df['location'] 
 # Dictionary for the list of tables
 datatable_interact = ['datatable-interact-location-{}'.format(i) for i in list_of_extended_countries]
 
-print(df_temp[df_temp.country == 'Netherlands'])
 
 dcc_tables = [make_dcc_country_tab(i,df_temp) for i in list_of_extended_countries]
 fig_map = create_map(df_temp)
