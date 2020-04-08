@@ -68,7 +68,10 @@ def add_growth(data, field):
         if cn == '-GR':        
           Growthr = Growthr.clip(0, 1)*100
         #Growthr.iloc[0:N] = np.nan
-        Growthr.iloc[-1] = np.nan
+        if Growthr[field+cn].iloc[-1] <= 0:
+          Growthr[field+cn].iloc[-1] = np.nan
+        if Growthr[field+cn].iloc[-1] > 100000:
+          Growthr[field+cn].iloc[-1] = np.nan
         data[field+cn] = Growthr[field+cn]
     return data
 
