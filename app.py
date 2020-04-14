@@ -17,6 +17,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+
 #import Simulations_COVID19 as SCovid19 
 
 path='./assets/data/'
@@ -151,11 +152,13 @@ def create_add_trace(fig, df_temp, list_cn, name_list, hovertext_list, N = 100, 
                                       marker=dict(size=4, color='#f4f4f2',
                                                   line=dict(width=1, color=colhex(colors[i+iadd]))),
                                       text=[str(d) for d in df_temp['time']],))
-
   return fig
 
 # Plot style for figures 1
-def figure_top_style(fig, tickList = None, xscale = "liner", yscale = "liner"):
+def figure_top_style(fig, tickList = None, xscale = "linear", yscale = "linear"):
+  xaxis_tickformat = 'd'
+  if xscale == "date":
+    xaxis_tickformat = '%b %d'
   yaxis = dict(showline=False, linecolor='#272e3e',
         zeroline=False,
         # showgrid=False,
@@ -168,7 +171,6 @@ def figure_top_style(fig, tickList = None, xscale = "liner", yscale = "liner"):
     yaxis.update(dict(tickvals=tickList,
         # Set tick label accordingly
         ticktext=[str(i) for i in tickList]))
-
 
   # Customise layout
   fig.update_layout(
@@ -188,10 +190,11 @@ def figure_top_style(fig, tickList = None, xscale = "liner", yscale = "liner"):
         gridwidth=.1,
         zeroline=False
     ),
+
     xaxis_type=xscale,
-    xaxis_tickformat='%b %d',
+    xaxis_tickformat=xaxis_tickformat,
     hovermode='x',
-    legend_orientation="h",
+    #legend_orientation="h",
     plot_bgcolor=backgroundColorplots,
     paper_bgcolor=backgroundColorplots,
     font=dict(color='#e6e3e3', size=10)
@@ -241,14 +244,7 @@ def figure_top_style_2(fig, country, location, backgroundColorplots = background
           gridcolor='rgba(203, 210, 211,.3)',
           gridwidth=.1,
           zeroline=False
-      ),
-      xaxis_tickformat='%b %d',
-      hovermode='x',
-      legend_orientation="h",
-      legend=dict(x=.02, y=.95, bgcolor="rgba(0,0,0,0)",),
-      plot_bgcolor=backgroundColorplots,
-      paper_bgcolor=backgroundColorplots,
-      font=dict(color='#e6e3e3', size=10)
+      )
   )
   return fig
 
@@ -351,14 +347,6 @@ def map_selectcolor(df, i, location):
     color =  Mapcolor_dic['Alert']
   if count > 10000:
     color =  Mapcolor_dic['Severe']    
-    
-  """
-  if location == 'inner':
-    if df.location == 'Full Country':
-      return Mapcolor_dic['Full Country']
-    else:
-      return Mapcolor_dic['Partial']
-  """
   
   return color   
 
@@ -398,6 +386,7 @@ def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexsca
     fig = go.Figure()
     # Add trace to the figure
     df_temp.sort_values('deaths')
+
     fig = create_add_trace(fig, df_temp, list_cn = list_cn, name_list = name_list, hovertext_list = hovertext_list, N = N, iadd = iadd)
     fig = figure_top_style(fig, xscale = typexscale, yscale = typeyscale)
     fig = figure_top_style_2(fig, country = country, location = location, yaxis_title=yaxis_title)
@@ -409,17 +398,17 @@ def update_line_plot(vals, list_cn, name_list, hovertext_list, N, iadd, typexsca
 ################################################################################
 # Load data and minor postprocessing.
 
-df = pd.read_json(path+'cases_world.json')
-loc_dic_df = pd.read_json(path+'locations.json')
-df_phenom = pd.read_json(path+'phenom.json')
+df = pd.read_json(path + 'cases_world.json')
+loc_dic_df = pd.read_json(path + 'locations.json')
+df_phenom = pd.read_json(path + 'phenom.json')
+df_population = pd.read_csv(path + 'populationData.tsv', header=0, delimiter = '\t', na_values='')   
+
 
 #Eliminate hour and time:zone
 df['time'] = df['time'].str.slice(0,10)
 
 # Data for the tables and the map related to the cumulative data of the last day
 df_temp = df.groupby(['country','location','time']).max().reset_index().sort_values('time').groupby(['country','location']).tail(1)
-
-print(df_temp[df_temp.country == 'Spain'])
 
 # Save numbers into variables to use in the app
 latestDate = df_temp.sort_values('time')['time'].values[0]
@@ -473,12 +462,26 @@ dic_tabs['Cumulative Cases Linear'] = ['figure-dash',fig_dash,['deaths','cases',
 dic_tabs['Cumulative Cases Log'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'log']
 dic_tabs['Rate evolution'] = ['figure-dash',fig_dash, ['deaths-GR','cases-GR'],"24h Percentage increase rate [%]",'linear']
 dic_tabs['Daily increment / peak'] = ['figure-dash',fig_dash, ['deaths-PK','cases-PK'],"24h increment",'linear']
-dic_tabs['More than 500 deaths logscale'] = ['figure-dash',fig_dash]
+
+# Create empty canvas for the phenomenological figures.
+fig_group = go.Figure()
+figure_top_style(fig_group, xscale = "linear", yscale = "linear")
+figure_top_style_2(fig_group, country, location, xaxis_title='')
+ 
+dic_groups_tabs = {}
+dic_groups_tabs['More than 500 deaths Linear'] = ['figure-groups',fig_group,['deaths'],500.,100.,'x country',"Days after 100 death", "Cumulative numbers of deaths" ,'linear']
+dic_groups_tabs['More than 500 deaths Log'] = ['figure-groups',fig_group,['deaths'],500.,100.,'x country',"Days after 100 death", "Cumulative numbers of deaths" ,'log']
+
+dic_groups_tabs['Deaths x capita Linear'] = ['figure-groups',fig_group,['capita105'],20.,2,'deaths x population',"Days after d > 1", "Cumulative deaths x 100000 people",'linear']
+dic_groups_tabs['Deaths x capita Log'] = ['figure-groups',fig_group,['capita105'],20.,2,'deaths x population' ,"Days after d > 1", "Cumulative deaths x 100000 people",'log']
+
+#dic_groups_tabs['ICU Beds occupancy %'] = ['figure-groups',fig_group,['ICUBeds'],100.,0.1,'population density deaths', "Cumulative deaths x (km2/population)" ,"Days after D > 0.1",'linear']
+#dic_groups_tabs['Hospital capacity %'] = ['figure-groups',fig_group,['hospitalBeds'],100.,0.1,'population density deaths', "Cumulative deaths x (km2/population)" ,"Days after D > 0.1",'log']
 
 # Create empty canvas for the phenomenological figures.
 fig_model = go.Figure()
 figure_top_style(fig_model, xscale = "date", yscale = "linear")
-figure_top_style_2(fig_model, country, location)
+figure_top_style_2(fig_model, country, location, xaxis_title='')
 
 # Dictionary to create tabs. and update phenomenological figures 
 dic_phenom_tabs = {}
@@ -934,7 +937,26 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
                           children=dcc_tables
                       ),
         ]),
-
+        ######## ######## ##########
+        ### Contenido de groups ###
+        ######## ######## ##########
+        html.Div(style={'width': '99.2%', 'marginRight': '.8%', 'display': 'inline-block', 'verticalAlign': 'top'},
+                              children=[
+                                  html.H5(style={'textAlign': 'center', 'backgroundColor': backgroundColor2,
+                                                'color': color_fort_map, 'padding': '1rem', 'marginBottom': '0'},
+                                                children=''),
+                                  dcc.Tabs(
+                                      id="tabs-groups-plots", 
+                                      value='Groups',
+                                      parent_className='custom-tabs',
+                                      className='custom-tabs-container', 
+                                      children=[dcc.Tab(className='custom-tab',
+                                                selected_className='custom-tab--selected',
+                                                label=key, 
+                                                value=key) for key in dic_groups_tabs.keys()]
+                                          ),
+                                  html.Div(id='tabs-content-groups-plots'),
+        ]),
         ######## ######## ##########
         ### Contenido de modelos ###
         ######## ######## ##########
@@ -963,11 +985,11 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
 
 def get_data_update(vals):
 
-    df_temp_table = df.sort_values('time').groupby(['country','location']).tail(1)
+    df_temp_table = df.groupby(['country','location','time']).max().reset_index().sort_values('time').groupby(['country','location']).tail(1)
     df_temp_table, _ = make_dcc_pd(vals[0], df_temp_table.copy())
 
     country = vals[0]
-
+    
     zoom = 1
     if country == 'The World':
       location = 'countries in the table'
@@ -997,10 +1019,11 @@ def update_figures(*vals):
     df_temp = df.sort_values('time').groupby(['country','location']).tail(1)
     textList = [df.country, df.location]
 
-
     fig_map = create_map(df_temp, longitude, latitude, zoom)
 
     return fig_map
+
+
 
 @app.callback(Output('tabs-content-plots', 'children'),
               [Input('tabs-plots', 'value')])
@@ -1013,25 +1036,48 @@ def render_content(tab):
     Output('figure-dash', 'figure'), [Input('tabs-plots', 'value')]+[Input('tabs-table', 'value')]+flatten_inputs
 )
 def update_logplot(*vals):
-      # Create empty figure canvas
   tab = vals[0]
   vals = vals[1:]
-
-  if tab == 'More than 500 deaths logscale':
-    fig = go.Figure()
-    th = 500 # threshold for countries to be shown.
-    list_cn = df[df['deaths'] > th].reset_index()['country'].unique()
-    for i, cn in enumerate(list_cn):
-      df_temp = df[(df['location'] == 'Full Country')&(df['country'] == cn)].groupby('time').max()
-      df_temp = df_temp[df_temp['deaths'] > th].reset_index()
-
-      create_add_trace(fig, df_temp, list_cn = ['deaths'], name_list = [cn+' deaths'], hovertext_list = [cn+' deaths'], N = len(list_cn)+1, iadd = i)
-      figure_top_style(fig, xscale = "date", yscale = "log")
-      figure_top_style_2(fig, 'Log plot', 'countries > 500 deaths', xaxis_title = "Days after 100 cases")
-  else:
-    fig = update_line_plot(vals, list_cn= dic_tabs[tab][2], name_list = dic_tabs[tab][2], hovertext_list = dic_tabs[tab][2], N = len(dic_tabs[tab][2]), iadd = 0, typexscale = 'date', typeyscale = dic_tabs[tab][-1], yaxis_title = dic_tabs[tab][-2])
+  fig = update_line_plot(vals, list_cn= dic_tabs[tab][2], name_list = dic_tabs[tab][2], hovertext_list = dic_tabs[tab][2], N = len(dic_tabs[tab][2]), iadd = 0, typexscale = 'date', typeyscale = dic_tabs[tab][-1], yaxis_title = dic_tabs[tab][-2])
   return fig
 
+@app.callback(Output('tabs-content-groups-plots', 'children'),
+              [Input('tabs-groups-plots', 'value')])
+def render_content(tab):
+  if tab != 'Groups':
+    figure=dic_groups_tabs[tab][1]
+    return dcc.Graph(id=dic_groups_tabs[tab][0], style={'height': '300px'}, figure=figure,)
+
+@app.callback(
+    Output('figure-groups', 'figure'), [Input('tabs-groups-plots', 'value')]
+)
+def update_logplot(*vals):
+
+  tab = vals[0]
+  fig = go.Figure()
+
+  df_data = df[(df['country'] != 'The World')].copy().reset_index()
+  
+  df_data['Country'] = df_data['country'] + '-' + df_data['location']
+
+  mask = (df_data[dic_groups_tabs[tab][2]] > dic_groups_tabs[tab][3]).values
+  list_cn = df_data[mask]['Country'].unique()
+  
+  for i, cn in enumerate(list_cn):
+    df_temp = df_data[df_data['Country'] == cn].groupby('time').max()
+
+    mask = (df_temp[dic_groups_tabs[tab][2]] > dic_groups_tabs[tab][4]).values
+
+    df_temp = df_temp[mask].reset_index()
+
+    df_temp['time'] = list(df_temp.index)
+
+    create_add_trace(fig, df_temp, list_cn = dic_groups_tabs[tab][2], name_list = [cn], hovertext_list = [cn], N = len(list_cn)+1, iadd = i)
+
+  figure_top_style(fig, xscale = "linear", yscale = dic_groups_tabs[tab][-1])
+  figure_top_style_2(fig, 'Death', dic_groups_tabs[tab][-4], xaxis_title = dic_groups_tabs[tab][-3], yaxis_title = dic_groups_tabs[tab][-2])
+
+  return fig
 
 @app.callback(Output('tabs-content-phenom-plots', 'children'),
               [Input('tabs-phenom-plots', 'value')])
@@ -1055,6 +1101,11 @@ def update_logplot(*vals):
   figure_top_style_2(fig_model, 'Phenom', '', xaxis_title = "Date", yaxis_title = "Cumulative numbers of deaths")
   return fig_model
 
+if __name__ == "__main__":
+    app.run_server()
+
+"""
+
 @app.callback(Output('tabs-content-b-SEIRDs-plots', 'children'),
               [Input('tabs-b-SEIRDs-plots', 'value')])
 def render_content(tab):
@@ -1062,10 +1113,7 @@ def render_content(tab):
     figure=dic_phenom_tabs[tab][1]
     return dcc.Graph(id=dic_phenom_tabs[tab][0], style={'height': '300px'}, figure=figure,)
 
-if __name__ == "__main__":
-    app.run_server()
 
-"""
 @p.callback(
     Output('figure-b-SEIRDs', 'figure'), [Input('tabs-b-SEIRDs-plots', 'value')]
 )
