@@ -878,8 +878,7 @@ app.layout = html.Div(style={'backgroundColor': backgroundColor1},
                 html.H1(style={'font-weight': 'bold', 'padding-top':' 1em'}, id='web_title', children="COVID-19 Statistics and Research"),
                 html.Div(style={'height':'1px', 'width': '80%','display': 'block', 'margin-top':' 0.5em', 'margin-bottom':' 1.3em', 'backgroundColor': background_color_banners}),
                 html.H2(style={'font_size': '1em', 'padding-top':' 1em', 'width': '75%'}, id='web_subtitle', children="This website aims to help increase the public’s understanding of the evolving pandemic outbreak."),
-                html.H6(id='web_authors', children="Miquel Oliver & Xisco Jimenez Forteza."),  
-                html.P(style={'font-weight': 'bold'}, id='web_update_date', children="Last Update: " + str(latestDate))]),
+                html.H6(id='web_authors', children="Miquel Oliver & Xisco Jimenez Forteza.")]),
             ]),
         ######## ######## ########
         ### Principal Dashboar ###
