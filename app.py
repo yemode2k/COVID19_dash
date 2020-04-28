@@ -485,8 +485,8 @@ figure_top_style_2(fig_model, country, location, xaxis_title='')
 
 # Dictionary to create tabs. and update phenomenological figures 
 dic_phenom_tabs = {}
-dic_phenom_tabs['Phenom logistic model linear'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'log-model','linear']
-dic_phenom_tabs['Phenom logistic model log'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'log-model','log']
+#dic_phenom_tabs['Phenom logistic model linear'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'log-model','linear']
+#dic_phenom_tabs['Phenom logistic model log'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'log-model','log']
 dic_phenom_tabs['Phenom Gomper model linear'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'gompertz-model','linear']
 dic_phenom_tabs['Phenom Gomper model log'] = ['figure-phenom',fig_model,['vmean','vmin','vmax'],'gompertz-model','log']
 
