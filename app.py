@@ -78,7 +78,8 @@ def add_growth(data, field):
 
 # It generates blocks per country, regions etc.
 def data_funct(df, location, country, zoom = 1):
-  df_temp = df[df.country.isin([country]) & df.location.isin([location])].groupby('time').max().sort_values(['time']).reset_index()
+  df_temp = df[df.country.isin([country]) & df.location.isin([location])].groupby('time').max().sort_values(['time'])
+  df_temp = df_temp.reset_index()
 
   for cn in ['deaths','cases','recovered']: #,'hospitalized','ICU']:
       A = df_temp[cn].interpolate().values
@@ -91,10 +92,10 @@ def data_funct(df, location, country, zoom = 1):
 # It makes the frames of tables.
 def make_dcc_pd(country, dataframe):
     if country == "The World":
-      rows_list = ['time','country','cases','deaths','recovered','hospitalized','ICU']
+      rows_list = ['time','country','cases','deaths','recovered','hospitalized','ICU','active']
       dataframe = dataframe[dataframe.location == "Full Country"] 
     else:
-      rows_list = ['time','location','cases','deaths','recovered','hospitalized','ICU']
+      rows_list = ['time','location','cases','deaths','recovered','hospitalized','ICU','active']
       dataframe = dataframe[dataframe.country == country]
     return [dataframe.sort_values(['deaths'], axis = 0, ascending=False), rows_list]
 
@@ -458,8 +459,8 @@ figure_top_style_2(fig_dash, country, location)
 
 # Dictionary to create tabs. and update figures for the data.
 dic_tabs = {}
-dic_tabs['Cumulative Cases Linear'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'linear']
-dic_tabs['Cumulative Cases Log'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU'],"Cumulative cases numbers",'log']
+dic_tabs['Cumulative Cases Linear'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU','active'],"Cumulative cases numbers",'linear']
+dic_tabs['Cumulative Cases Log'] = ['figure-dash',fig_dash,['deaths','cases','recovered','hospitalized','ICU','active'],"Cumulative cases numbers",'log']
 dic_tabs['Rate evolution'] = ['figure-dash',fig_dash, ['deaths-GR','cases-GR'],"24h Percentage increase rate [%]",'linear']
 dic_tabs['Daily increment / peak'] = ['figure-dash',fig_dash, ['deaths-PK','cases-PK'],"24h increment",'linear']
 
